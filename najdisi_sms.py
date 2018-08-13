@@ -80,7 +80,7 @@ def main():
     msg = ' '.join(args)
 
     sender = SMSSender(options.username, options.password, options.useragent)
-    sender.sent(who, msg)
+    sender.send(who, msg)
 
 
 class SMSSender(object):
@@ -133,7 +133,7 @@ class SMSSender(object):
 
         return msg
 
-    def sent(self, receiver, msg):
+    def send(self, receiver, msg):
         """Sent the message.
 
         :receiver: Reciever number (only Slovenian supported)
@@ -160,10 +160,10 @@ class SMSSender(object):
         s.headers.update({'User-Agent': self.useragent})
 
         response = s.get(
-            'http://www.najdi.si/najdi.layoutnajdi.loginlink:login?t:ac=sms'
+            'https://www.najdi.si/najdi.layoutnajdi.loginlink:login?t:ac=sms'
         )
 
-        soup = BeautifulSoup(response.text)
+        soup = BeautifulSoup(response.text, "html.parser")
         formdata_els = soup.findAll(attrs={'name': 't:formdata'})
         formdata_value = formdata_els[0].attrs['value']
 
@@ -174,11 +174,11 @@ class SMSSender(object):
             'jsecPassword': self.password
         }
         response = s.post(
-            'http://www.najdi.si/prijava.jsecloginform',
+            'https://www.najdi.si/prijava.jsecloginform',
             data
         )
 
-        soup = BeautifulSoup(response.text)
+        soup = BeautifulSoup(response.text, "html.parser")
 
         formdata_els = soup.findAll(attrs={'name': 't:formdata'})
         formdata_vals = [formdata_el.attrs['value'] for formdata_el in formdata_els]
@@ -199,11 +199,11 @@ class SMSSender(object):
             't:zoneid': 'smsZone'
         }
         response = s.post(
-            "http://www.najdi.si/najdi.shortcutplaceholder.freesmsshortcut.smsform",
+            "https://www.najdi.si/najdi.shortcutplaceholder.freesmsshortcut.smsform",
             data,
             headers={"X-Requested-With": "XMLHttpRequest"}
         )
-        soup = BeautifulSoup(response.text)
+        soup = BeautifulSoup(response.text, "html.parser")
 
 if __name__ == '__main__':
     main()
